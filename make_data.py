@@ -72,3 +72,14 @@ def subtraction_dataset(number_type:str):
             answer=a-b
             src_dict[OUTPUT].append(f"{answer}")
     return Dataset.from_dict(src_dict)
+
+if __name__ == "__main__":
+    for number_type in NUMBER_TYPE_LIST:
+        mult_dataset_name=f"{MULTIPLICATION}_{number_type}"
+        multiplication_dataset(number_type).push_to_hub(f"jlbaker361/{mult_dataset_name}")
+        divi_dataset_name=f"{DIVISION}_{number_type}"
+        division_dataset(number_type).push_to_hub(f"jlbaker361/{divi_dataset_name}")
+        subt_dataset_name=f"{SUBTRACTION}_{number_type}"
+        subtraction_dataset(number_type).push_to_hub(f"jlbaker361/{subt_dataset_name}")
+        addi_dataset_name=f"{ADDITION}_{number_type}"
+        addition_dataset(number_type).push_to_hub(f"jlbaker361/{addi_dataset_name}")
