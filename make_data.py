@@ -3,6 +3,7 @@ from string_globals import *
 
 INPUT="input"
 OUTPUT="output"
+TEXT="text"
 
 big_num=100
 
@@ -11,16 +12,18 @@ def multiplication_dataset(number_type:str):
         raise Exception("invalid number type")
     src_dict={
         INPUT:[],
-        OUTPUT:[]
+        OUTPUT:[],
+        TEXT:[]
     }
     for a in range(0,big_num):
         for b in range(0,big_num):
             if number_type==DECIMAL:
                 a=float(a)/big_num
                 b=float(b)/big_num
-            src_dict[INPUT].append(f"{a} * {b} =")
+            src_dict[INPUT].append(f"{a} * {b} = ")
             answer=a*b
-            src_dict[OUTPUT].append(f"{answer}")
+            src_dict[TEXT].append(f"{a} * {b} = {answer}")
+            src_dict[OUTPUT].append(answer)
     return Dataset.from_dict(src_dict)
 
 def division_dataset(number_type: str):
@@ -28,32 +31,36 @@ def division_dataset(number_type: str):
         raise Exception("invalid number type")
     src_dict={
         INPUT:[],
-        OUTPUT:[]
+        OUTPUT:[],
+        TEXT:[]
     }
     for a in range(0,big_num):
         for b in range(1,big_num):
             if number_type==DECIMAL:
                 a=float(a)/big_num
                 b=float(b)/big_num
-            src_dict[INPUT].append(f"{a} / {b} =")
+            src_dict[INPUT].append(f"{a} / {b} = ")
             answer=a/b
-            src_dict[OUTPUT].append(f"{answer}")
+            src_dict[TEXT].append(f"{a} / {b} = {answer}")
+            src_dict[OUTPUT].append(answer)
 
 def addition_dataset(number_type:str):
     if number_type not in NUMBER_TYPE_LIST:
         raise Exception("invalid number type")
     src_dict={
         INPUT:[],
-        OUTPUT:[]
+        OUTPUT:[],
+        TEXT:[]
     }
     for a in range(0,big_num):
         for b in range(0,big_num):
             if number_type==DECIMAL:
                 a=float(a)/big_num
                 b=float(b)/big_num
-            src_dict[INPUT].append(f"{a} + {b} =")
+            src_dict[INPUT].append(f"{a} + {b} = ")
             answer=a+b
-            src_dict[OUTPUT].append(f"{answer}")
+            src_dict[TEXT].append(f"{a} + {b} = {answer}")
+            src_dict[OUTPUT].append(answer)
     return Dataset.from_dict(src_dict)
 
 def subtraction_dataset(number_type:str):
@@ -61,16 +68,18 @@ def subtraction_dataset(number_type:str):
         raise Exception("invalid number type")
     src_dict={
         INPUT:[],
-        OUTPUT:[]
+        OUTPUT:[],
+        TEXT:[]
     }
     for a in range(0,big_num):
         for b in range(0,a):
             if number_type==DECIMAL:
                 a=float(a)/big_num
                 b=float(b)/big_num
-            src_dict[INPUT].append(f"{a} - {b} =")
+            src_dict[INPUT].append(f"{a} - {b} = ")
             answer=a-b
-            src_dict[OUTPUT].append(f"{answer}")
+            src_dict[TEXT].append(f"{a} - {b} = {answer}")
+            src_dict[OUTPUT].append(answer)
     return Dataset.from_dict(src_dict)
 
 if __name__ == "__main__":
