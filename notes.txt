@@ -1,5 +1,6 @@
 for rl https://github.com/CarperAI/trlx
 for fine tuning https://huggingface.co/docs/peft/install
+also accelearet https://huggingface.co/docs/transformers/accelerate
 
 generate dataset(s)
     a. whole numbers 0-1000
