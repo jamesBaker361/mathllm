@@ -1,2 +1,13 @@
 for rl https://github.com/CarperAI/trlx
 for fine tuning https://huggingface.co/docs/peft/install
+
+generate dataset(s)
+    a. whole numbers 0-1000
+    b. decimals
+        1. addition
+        2. subtraction
+        3. division
+        4. multiplication
+        5. sorting
+
+evaluation
