@@ -10,4 +10,6 @@ generate dataset(s)
         4. multiplication
         5. sorting
 
+for splice splits: https://huggingface.co/docs/datasets/v2.14.5/loading#slice-splits
+
 evaluation
