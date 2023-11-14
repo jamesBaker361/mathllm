@@ -82,6 +82,14 @@ def subtraction_dataset(number_type:str):
             src_dict[OUTPUT].append(answer)
     return Dataset.from_dict(src_dict)
 
+def dummy_datset(number_type:str=None):
+    src_dict={
+        INPUT:["a","b","c"],
+        OUTPUT:["e","f","g"],
+        TEXT:["ae","bf","cg"]
+    }
+    return Dataset.from_dict(src_dict)
+
 if __name__ == "__main__":
     for number_type in NUMBER_TYPE_LIST:
         mult_dataset_name=f"{MULTIPLICATION}_{number_type}"
@@ -92,3 +100,5 @@ if __name__ == "__main__":
         subtraction_dataset(number_type).push_to_hub(f"jlbaker361/{subt_dataset_name}")
         addi_dataset_name=f"{ADDITION}_{number_type}"
         addition_dataset(number_type).push_to_hub(f"jlbaker361/{addi_dataset_name}")
+        dum_dataset_name=f"dumb_{number_type}"
+        dummy_datset(number_type).push_to_hub(f"jlbaker361/{dum_dataset_name}")
