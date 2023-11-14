@@ -1,7 +1,7 @@
-PEFT="peft"
+FT="fine-tune"
 RL="rl"
 VANILLA="vanilla"
-TRAINING_TYPE_LIST=[PEFT, RL, VANILLA]
+TRAINING_TYPE_LIST=[FT, RL, VANILLA]
 
 MULTIPLICATION="multiplication"
 SUBTRACTION="subtraction"
