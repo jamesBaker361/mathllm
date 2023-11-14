@@ -1,5 +1,6 @@
-for rl https://github.com/CarperAI/trlx
+for rl https://github.com/CarperAI/trlx or better: https://github.com/huggingface/trl
 for fine tuning https://huggingface.co/docs/peft/install
+this might be helpful: https://github.com/huggingface/peft/issues/131
 also accelearet https://huggingface.co/docs/transformers/accelerate
 
 generate dataset(s)
