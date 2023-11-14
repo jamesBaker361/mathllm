@@ -1,0 +1,2 @@
+for rl https://github.com/CarperAI/trlx
+for fine tuning https://huggingface.co/docs/peft/install
