@@ -1,6 +1,7 @@
 FT="fine-tune"
 RL="rl"
 VANILLA="vanilla"
+MIXED="mixed" #rl + fine tune
 TRAINING_TYPE_LIST=[FT, RL, VANILLA]
 
 MULTIPLICATION="multiplication"
