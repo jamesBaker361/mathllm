@@ -22,6 +22,7 @@ def training_loop(epochs:int,
     peft_config = LoraConfig(task_type=TaskType.CAUSAL_LM, inference_mode=False, r=8, lora_alpha=32, lora_dropout=0.1)
     for training_type in training_type_list:
         run_name=get_run_name(training_type, task_list, number_type_list)
+        print(run_name)
         model=AutoModelForCausalLM.from_pretrained('gpt2')
         model = get_peft_model(model, peft_config)
         tokenizer = AutoTokenizer.from_pretrained('gpt2')
@@ -94,7 +95,19 @@ def training_loop(epochs:int,
         model_2.push_to_hub(run_name)
 
         
-                
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--training_type_list", nargs = '*', help="training types", default=TRAINING_TYPE_LIST)
+parser.add_argument("--task_list", nargs = '*', help="task types", default=TASK_LIST)
+parser.add_argument("--number_type_list", nargs = '*', help="number types", default=NUMBER_TYPE_LIST)
+parser.add_argument("--epochs", type=int, help="total epochs to train for")
 
-
-
+args = parser.parse_args()
+if __name__=='__main__':
+    training_loop(
+        args.epochs,
+        args.training_type_list,
+        args.task_list,
+        args.number_type_list,
+    )
+    print("done :)")
