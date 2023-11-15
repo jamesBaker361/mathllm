@@ -1,11 +1,12 @@
 from peft import LoraConfig, TaskType, get_peft_model
-from transformers import pipeline, set_seed, AutoTokenizer, AutoModelForCausalLM,TrainingArguments
+from transformers import AutoTokenizer, AutoModelForCausalLM,TrainingArguments
 from trl import SFTTrainer
 from string_globals import *
 from datasets import Dataset
 import time
 from trl import PPOTrainer, PPOConfig, AutoModelForCausalLMWithValueHead, create_reference_model
 from trl.core import respond_to_batch
+import numpy as np
 import wandb
 import os
 from utils import download_datasets, reward_function
@@ -21,7 +22,7 @@ def training_loop(epochs:int,
     peft_config = LoraConfig(task_type=TaskType.CAUSAL_LM, inference_mode=False, r=8, lora_alpha=32, lora_dropout=0.1)
     for training_type in training_type_list:
         task='+'.join(task_list)
-        number_type='+'.join(number_type)
+        number_type='+'.join(number_type_list)
         run_name=f"{training_type}_{task}_{number_type}"
         model=AutoModelForCausalLM.from_pretrained('gpt2')
         model = get_peft_model(model, peft_config)
@@ -58,6 +59,15 @@ def training_loop(epochs:int,
         )
 
         trainer.train()
+
+        batch_size=8
+        batched_dataset=[t for t in train_dataset]
+        batched_dataset=batched_dataset[:len(batched_dataset)-  (len(batched_dataset) %batch_size)]
+        batched_dataset=np.reshape(batched_dataset, (len(batched_dataset)//batch_size, batch_size))
+        for e in range(ft_epochs, rl_epochs):
+            for batch in batched_dataset:
+                batch={key: [i[key] for i in batch] for key in batch[0]}
+                
 
 
 
