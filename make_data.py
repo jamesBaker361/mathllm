@@ -98,7 +98,7 @@ def subtraction_dataset(number_type:str,big_num:int=100):
 def dummy_datset(number_type:str=None,big_num:int=100):
     src_dict={
         INPUT:["a" for _ in range(10)],
-        OUTPUT:["b" for _ in range(10)],
+        OUTPUT:[0.0 for _ in range(10)],
         TEXT:["aa bb cc" for _ in range(10)]
     }
     return Dataset.from_dict(src_dict).train_test_split(SPLIT_FRACTION)
