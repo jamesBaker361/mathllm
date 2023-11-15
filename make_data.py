@@ -98,24 +98,7 @@ def subtraction_dataset(number_type:str,big_num:int=100):
 def dummy_datset(number_type:str=None,big_num:int=100):
     src_dict={
         INPUT:["a" for _ in range(10)],
-        OUTPUT:[0.0 for _ in range(10)],
+        OUTPUT:[0.1 for _ in range(10)],
         TEXT:["aa bb cc" for _ in range(10)]
     }
     return Dataset.from_dict(src_dict).train_test_split(SPLIT_FRACTION)
-
-if __name__ == "__main__":
-    for number_type in NUMBER_TYPE_LIST:
-        dum_dataset_name=f"dumb_{number_type}"
-        dummy_datset(number_type).push_to_hub(f"jlbaker361/{dum_dataset_name}")
-        continue
-        big_num=256
-        mult_dataset_name=f"{MULTIPLICATION}_{number_type}"
-        multiplication_dataset(number_type,big_num).push_to_hub(f"jlbaker361/{mult_dataset_name}")
-        divi_dataset_name=f"{DIVISION}_{number_type}"
-        division_dataset(number_type,big_num).push_to_hub(f"jlbaker361/{divi_dataset_name}")
-        subt_dataset_name=f"{SUBTRACTION}_{number_type}"
-        subtraction_dataset(number_type,big_num).push_to_hub(f"jlbaker361/{subt_dataset_name}")
-        addi_dataset_name=f"{ADDITION}_{number_type}"
-        addition_dataset(number_type,big_num).push_to_hub(f"jlbaker361/{addi_dataset_name}")
-        dum_dataset_name=f"dumb_{number_type}"
-        dummy_datset(number_type).push_to_hub(f"jlbaker361/{dum_dataset_name}")
