@@ -15,3 +15,7 @@ WHOLE="whole"
 DECIMAL="decimal"
 
 NUMBER_TYPE_LIST=[WHOLE, DECIMAL]
+
+INPUT="input"
+OUTPUT="output"
+TEXT="text"
