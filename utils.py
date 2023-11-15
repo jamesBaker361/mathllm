@@ -32,3 +32,10 @@ def download_datasets(task_list, number_type_list):
             big_test=concatenate_datasets([big_test, test])
     return big_train, big_test
 
+def get_run_name(training_type:str, task_list:list,number_type_list:list )->str:
+    task_list.sort()
+    number_type_list.sort()
+    all_tasks='+'.join(task_list)
+    all_number_types='+'.join(number_type_list)
+    run_name=f"{training_type}_{all_tasks}_{all_number_types}"
+    return run_name
