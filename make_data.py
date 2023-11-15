@@ -105,6 +105,9 @@ def dummy_datset(number_type:str=None,big_num:int=100):
 
 if __name__ == "__main__":
     for number_type in NUMBER_TYPE_LIST:
+        dum_dataset_name=f"dumb_{number_type}"
+        dummy_datset(number_type).push_to_hub(f"jlbaker361/{dum_dataset_name}")
+        continue
         big_num=256
         mult_dataset_name=f"{MULTIPLICATION}_{number_type}"
         multiplication_dataset(number_type,big_num).push_to_hub(f"jlbaker361/{mult_dataset_name}")
