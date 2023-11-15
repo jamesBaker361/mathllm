@@ -15,11 +15,11 @@ class TrainingTest(unittest.TestCase):
         and model type =ft trains model
         and uploads metrics to wandb
         '''
-        for training_type_list in [[FT],[RL], [MIXED]]:
+        for training_type_list in [ [RL],[FT],[MIXED]]:
             with self.subTest(training_type_list=training_type_list):
                 for task_list in [["dumb"]]:
                     with self.subTest(task_list=task_list):
-                        for number_type_list in [[WHOLE], [DECIMAL]]:
+                        for number_type_list in [[WHOLE], [DECIMAL], [DECIMAL,WHOLE]]:
                             with self.subTest(number_type_list=number_type_list):
                                 training_loop(2, training_type_list, task_list, number_type_list)
 
