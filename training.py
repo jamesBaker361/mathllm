@@ -55,7 +55,7 @@ def training_loop(epochs:int,
             # other args and kwargs here
             run_name=run_name,
             report_to="wandb",  # enable logging to W&B
-            logging_steps=1  # how often to log to W&B
+            logging_steps=64  # how often to log to W&B
         )
 
         train_dataset,_=download_datasets(task_list, number_type_list)
