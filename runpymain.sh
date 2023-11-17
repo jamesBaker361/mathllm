@@ -24,4 +24,3 @@ eval "$(conda shell.bash hook)"
 conda activate math
 srun python3 $@
 conda deactivate
-echo "howdy"
