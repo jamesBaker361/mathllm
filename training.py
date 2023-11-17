@@ -9,7 +9,9 @@ from trl.core import respond_to_batch
 import numpy as np
 import wandb
 import os
-from utils import download_datasets, reward_function, get_run_name
+from utils import download_datasets, reward_function, get_run_name, expand_embedding_vocab_size
+import pdb
+#pdb.set_trace()
 
 os.environ["WANDB_API_KEY"]="004792fd620af032a735920a6cd036486b182519"
 os.environ["WANDB_NOTEBOOK_NAME"]="math-notebook"
@@ -25,6 +27,7 @@ def training_loop(epochs:int,
         run_name=get_run_name(training_type, task_list, number_type_list,prefix)
         print(run_name)
         model=AutoModelForCausalLM.from_pretrained('gpt2')
+        model=expand_embedding_vocab_size(1,model)
         model = get_peft_model(model, peft_config)
         tokenizer = AutoTokenizer.from_pretrained('gpt2')
         tokenizer.add_special_tokens({'pad_token': '[PAD]'})
@@ -88,12 +91,13 @@ def training_loop(epochs:int,
                 batch={key: [i[key] for i in batch] for key in batch[0]}
                 query_tensor = torch.cat([tokenizer.encode(q, return_tensors="pt",padding="max_length", max_length=64) for q in batch[INPUT]])
                 try:
-                    response_tensor  = respond_to_batch(model_2, query_tensor)
+                    response_tensor  = respond_to_batch(model_2, query_tensor,txt_len=64)
                 except IndexError as index_error:
                     print("index error! batch input:\n")
                     for i,o in zip(batch[INPUT], batch[OUTPUT]):
                         print(i,o)
-                        exit()
+                    print('query tensor size', query_tensor.size())
+                    exit()
                 reward = [torch.tensor(reward_function(tokenizer.decode(response),answer)) for response, answer in zip(response_tensor, batch[OUTPUT])]
                 train_stats = ppo_trainer.step([t for t in query_tensor], [t for t in response_tensor], reward)
                 mean_scores.append(train_stats['ppo/mean_scores'])

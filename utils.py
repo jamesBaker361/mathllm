@@ -1,6 +1,7 @@
 from peft import LoraConfig, TaskType
 from datasets import Dataset,load_dataset,concatenate_datasets
 from string_globals import *
+import torch
 import re
 
 SEED=1234
@@ -8,12 +9,12 @@ SEED=1234
 def reward_function(decoded_response:str, answer:float, mae:bool=True)->float:
     nums=re.findall(r'\d+\.\d+|\d+', decoded_response)
     if len(nums)==0:
-        return -1000
+        return -1000.0
     guess=float(nums[0])
     if mae:
-        return abs(guess-answer)
+        return -1.0 * abs(guess-answer)
     else:
-        return (guess-answer)**2
+        return -1.0 * (guess-answer)**2
     
 def download_datasets(task_list, number_type_list,prefix):
     src_dict={
@@ -44,3 +45,17 @@ def get_run_name(training_type:str, task_list:list,number_type_list:list,prefix:
     if len(prefix)>0:
         run_name=f"{prefix}_{run_name}"
     return run_name
+
+def expand_embedding_vocab_size(new_tokens:int, model):
+    init_embedding_tensor=model.get_parameter('transformer.wte.weight').detach()
+    embedding_dim=init_embedding_tensor.size()[1]
+    new_words=torch.randn((new_tokens, embedding_dim))
+    new_wte_weight=torch.cat([init_embedding_tensor, new_words ])
+    model.transformer.wte.weight=torch.nn.Parameter(new_wte_weight)
+
+    init_head_tensor=model.get_parameter('lm_head.weight').detach() #lm_head.weight
+    new_words=torch.randn((new_tokens, embedding_dim))
+    new_head_weight=torch.cat([init_head_tensor, new_words ])
+    model.lm_head.weight=torch.nn.Parameter(new_head_weight)
+
+    return model
