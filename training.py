@@ -84,7 +84,7 @@ def training_loop(epochs:int,
             mean_scores=[]
             for batch in batched_dataset:
                 batch={key: [i[key] for i in batch] for key in batch[0]}
-                query_tensor = torch.cat([tokenizer.encode(q, return_tensors="pt") for q in batch[INPUT]])
+                query_tensor = torch.cat([tokenizer.encode(q, return_tensors="pt",padding="max_length", max_length=64) for q in batch[INPUT]])
                 response_tensor  = respond_to_batch(model_2, query_tensor)
                 reward = [torch.tensor(reward_function(tokenizer.decode(response),answer)) for response, answer in zip(response_tensor, batch[OUTPUT])]
                 train_stats = ppo_trainer.step([t for t in query_tensor], [t for t in response_tensor], reward)
