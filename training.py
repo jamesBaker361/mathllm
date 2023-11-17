@@ -10,7 +10,7 @@ import numpy as np
 import wandb
 import os
 from utils import download_datasets, reward_function, get_run_name, expand_embedding_vocab_size
-import pdb
+import time
 #pdb.set_trace()
 
 os.environ["WANDB_API_KEY"]="004792fd620af032a735920a6cd036486b182519"
@@ -72,8 +72,9 @@ def training_loop(epochs:int,
             args=args
         )
         if ft_epochs>0:
+            start=time.time()
             trainer.train()
-            print("fine tune training complete!")
+            print("fine tune training complete! time elapsed: ",time.time()-start)
         
         ppo_config = PPOConfig(
             batch_size=batch_size,
@@ -85,6 +86,7 @@ def training_loop(epochs:int,
         batched_dataset=[t for t in train_dataset]
         batched_dataset=batched_dataset[:len(batched_dataset)-  (len(batched_dataset) %batch_size)]
         batched_dataset=np.reshape(batched_dataset, (len(batched_dataset)//batch_size, batch_size))
+        start=time.time()
         for e in range(ft_epochs,ft_epochs+ rl_epochs):
             mean_scores=[]
             for batch in batched_dataset:
@@ -104,7 +106,7 @@ def training_loop(epochs:int,
             wandb.log({"ppo/mean_scores":np.mean(mean_scores)})
 
         wandb.finish()
-        print("rl training complete")
+        print("rl training complete time elapsed: ", time.time()-start)
         model_2.push_to_hub(run_name)
 
         
