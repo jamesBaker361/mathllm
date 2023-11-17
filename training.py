@@ -18,10 +18,11 @@ os.environ["WANDB_PROJECT"]="math-llm"
 def training_loop(epochs:int,
                   training_type_list:list[str],
                   task_list:list[str],
-                  number_type_list:list[str]):
+                  number_type_list:list[str],
+                  prefix:str=''):
     peft_config = LoraConfig(task_type=TaskType.CAUSAL_LM, inference_mode=False, r=8, lora_alpha=32, lora_dropout=0.1)
     for training_type in training_type_list:
-        run_name=get_run_name(training_type, task_list, number_type_list)
+        run_name=get_run_name(training_type, task_list, number_type_list,prefix)
         print(run_name)
         model=AutoModelForCausalLM.from_pretrained('gpt2')
         model = get_peft_model(model, peft_config)
@@ -58,7 +59,7 @@ def training_loop(epochs:int,
             logging_steps=64  # how often to log to W&B
         )
 
-        train_dataset,_=download_datasets(task_list, number_type_list)
+        train_dataset,_=download_datasets(task_list, number_type_list,prefix)
 
         trainer = SFTTrainer(
             model,

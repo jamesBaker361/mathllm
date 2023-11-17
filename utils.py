@@ -15,7 +15,7 @@ def reward_function(decoded_response:str, answer:float, mae:bool=True)->float:
     else:
         return (guess-answer)**2
     
-def download_datasets(task_list, number_type_list):
+def download_datasets(task_list, number_type_list,prefix):
     src_dict={
         TEXT:[],
         INPUT:[],
@@ -25,17 +25,22 @@ def download_datasets(task_list, number_type_list):
     big_test=Dataset.from_dict(src_dict)
     for task in task_list:
         for number_type in number_type_list:
-            split_dict=load_dataset(f"jlbaker361/{task}_{number_type}")
+            if len(prefix)>0:
+                split_dict=load_dataset(f"jlbaker361/{prefix}_{task}_{number_type}")
+            else:
+                split_dict=load_dataset(f"jlbaker361/{task}_{number_type}")
             train=split_dict["train"]
             test=split_dict["test"]
             big_train=concatenate_datasets([big_train, train])
             big_test=concatenate_datasets([big_test, test])
     return big_train, big_test
 
-def get_run_name(training_type:str, task_list:list,number_type_list:list )->str:
+def get_run_name(training_type:str, task_list:list,number_type_list:list,prefix:str )->str:
     task_list.sort()
     number_type_list.sort()
     all_tasks='_'.join(task_list)
     all_number_types='_'.join(number_type_list)
     run_name=f"{training_type}_{all_tasks}_{all_number_types}"
+    if len(prefix)>0:
+        run_name=f"{prefix}_{run_name}"
     return run_name
