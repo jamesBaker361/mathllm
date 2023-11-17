@@ -19,7 +19,7 @@ def training_loop(epochs:int,
                   training_type_list:list[str],
                   task_list:list[str],
                   number_type_list:list[str],
-                  prefix:str=''):
+                  prefix:str):
     peft_config = LoraConfig(task_type=TaskType.CAUSAL_LM, inference_mode=False, r=8, lora_alpha=32, lora_dropout=0.1)
     for training_type in training_type_list:
         run_name=get_run_name(training_type, task_list, number_type_list,prefix)
@@ -70,7 +70,8 @@ def training_loop(epochs:int,
         )
         if ft_epochs>0:
             trainer.train()
-
+            print("fine tune training complete!")
+        
         ppo_config = PPOConfig(
             batch_size=batch_size,
         )
@@ -93,6 +94,7 @@ def training_loop(epochs:int,
             wandb.log({"ppo/mean_scores":np.mean(mean_scores)})
 
         wandb.finish()
+        print("rl training complete")
         model_2.push_to_hub(run_name)
 
         
@@ -102,6 +104,7 @@ parser.add_argument("--training_type_list", nargs = '*', help="training types", 
 parser.add_argument("--task_list", nargs = '*', help="task types", default=TASK_LIST)
 parser.add_argument("--number_type_list", nargs = '*', help="number types", default=NUMBER_TYPE_LIST)
 parser.add_argument("--epochs", type=int, help="total epochs to train for")
+parser.add_argument("--prefix", type=str,default="")
 
 args = parser.parse_args()
 if __name__=='__main__':
@@ -110,5 +113,6 @@ if __name__=='__main__':
         args.training_type_list,
         args.task_list,
         args.number_type_list,
+        args.prefix
     )
     print("done :)")
