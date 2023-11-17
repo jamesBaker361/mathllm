@@ -1,4 +1,4 @@
-from peft import LoraConfig, TaskType
+from transformers import AutoModelForCausalLM
 from datasets import Dataset,load_dataset,concatenate_datasets
 from string_globals import *
 import torch
@@ -16,7 +16,7 @@ def reward_function(decoded_response:str, answer:float, mae:bool=True)->float:
     else:
         return -1.0 * (guess-answer)**2
     
-def download_datasets(task_list, number_type_list,prefix):
+def download_datasets(task_list: list[str], number_type_list:list[str],prefix:str):
     src_dict={
         TEXT:[],
         INPUT:[],
@@ -46,7 +46,7 @@ def get_run_name(training_type:str, task_list:list,number_type_list:list,prefix:
         run_name=f"{prefix}_{run_name}"
     return run_name
 
-def expand_embedding_vocab_size(new_tokens:int, model):
+def expand_embedding_vocab_size(new_tokens:int, model: AutoModelForCausalLM):
     init_embedding_tensor=model.get_parameter('transformer.wte.weight').detach()
     embedding_dim=init_embedding_tensor.size()[1]
     new_words=torch.randn((new_tokens, embedding_dim))
