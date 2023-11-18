@@ -107,7 +107,7 @@ def training_loop(epochs:int,
 
         wandb.finish()
         print("rl training complete time elapsed: ", time.time()-start)
-        model_2.push_to_hub(run_name)
+        model_2.push_to_hub(f"jlbaker361/{run_name}")
 
         
 import argparse
