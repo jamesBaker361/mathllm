@@ -68,7 +68,7 @@ def training_loop(epochs:int,
             model,
             train_dataset=train_dataset,
             dataset_text_field="text",
-            max_seq_length=128,
+            max_seq_length=64,
             args=args
         )
         if ft_epochs>0:
