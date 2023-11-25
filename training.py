@@ -18,6 +18,25 @@ os.environ["WANDB_NOTEBOOK_NAME"]="math-notebook"
 os.environ["WANDB_PROJECT"]="math-llm"
 np.random.seed(1234)
 
+
+tokenizer = AutoTokenizer.from_pretrained('gpt2')
+tokenizer.pad_token=tokenizer.eos_token
+batch_size=8
+top_k=4
+top_p=1.0
+temperature=1.5
+
+generation_kwargs = { #here? https://github.com/huggingface/transformers/blob/main/src/transformers/models/gpt2/modeling_gpt2.py
+    "min_length": -1,
+    "top_k": top_k,
+    "top_p": top_p,
+    "do_sample": True,
+    "pad_token_id": tokenizer.eos_token_id,
+    "max_new_tokens": 16,
+    "eos_token_id": -1,
+    "temperature":temperature
+}
+
 def training_loop(epochs:int,
                   training_type_list:list[str],
                   task_list:list[str],
@@ -30,8 +49,6 @@ def training_loop(epochs:int,
         model=AutoModelForCausalLM.from_pretrained('gpt2')
         #model=expand_embedding_vocab_size(1,model)
         model = get_peft_model(model, peft_config)
-        tokenizer = AutoTokenizer.from_pretrained('gpt2')
-        tokenizer.pad_token=tokenizer.eos_token
 
         if training_type==FT:
             ft_epochs=epochs
@@ -43,21 +60,7 @@ def training_loop(epochs:int,
             ft_epochs=epochs//2
             rl_epochs=epochs//2
         os.environ["WANDB_PROJECT"]=run_name
-        batch_size=8
-        top_k=4
-        top_p=1.0
-        temperature=1.0
 
-        generation_kwargs = { #here? https://github.com/huggingface/transformers/blob/main/src/transformers/models/gpt2/modeling_gpt2.py
-            "min_length": -1,
-            "top_k": top_k,
-            "top_p": top_p,
-            "do_sample": True,
-            "pad_token_id": tokenizer.eos_token_id,
-            "max_new_tokens": 16,
-            "eos_token_id": -1,
-            "temperature":temperature
-        }
 
         run = wandb.init(
             # Set the project where this run will be logged
