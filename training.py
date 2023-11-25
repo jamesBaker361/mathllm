@@ -16,6 +16,7 @@ import time
 os.environ["WANDB_API_KEY"]="004792fd620af032a735920a6cd036486b182519"
 os.environ["WANDB_NOTEBOOK_NAME"]="math-notebook"
 os.environ["WANDB_PROJECT"]="math-llm"
+np.random.seed(1234)
 
 def training_loop(epochs:int,
                   training_type_list:list[str],
@@ -27,10 +28,10 @@ def training_loop(epochs:int,
         run_name=get_run_name(training_type, task_list, number_type_list,prefix)
         print(run_name)
         model=AutoModelForCausalLM.from_pretrained('gpt2')
-        model=expand_embedding_vocab_size(1,model)
+        #model=expand_embedding_vocab_size(1,model)
         model = get_peft_model(model, peft_config)
         tokenizer = AutoTokenizer.from_pretrained('gpt2')
-        tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+        tokenizer.pad_token=tokenizer.eos_token
 
         if training_type==FT:
             ft_epochs=epochs
@@ -43,6 +44,21 @@ def training_loop(epochs:int,
             rl_epochs=epochs//2
         os.environ["WANDB_PROJECT"]=run_name
         batch_size=8
+        top_k=4
+        top_p=1.0
+        temperature=1.0
+
+        generation_kwargs = { #here? https://github.com/huggingface/transformers/blob/main/src/transformers/models/gpt2/modeling_gpt2.py
+            "min_length": -1,
+            "top_k": top_k,
+            "top_p": top_p,
+            "do_sample": True,
+            "pad_token_id": tokenizer.eos_token_id,
+            "max_new_tokens": 16,
+            "eos_token_id": -1,
+            "temperature":temperature
+        }
+
         run = wandb.init(
             # Set the project where this run will be logged
             project=run_name,
@@ -50,7 +66,10 @@ def training_loop(epochs:int,
             config={
                 "rl_epochs": rl_epochs,
                 "ft_epochs":ft_epochs,
-                "rl_batch_size":batch_size
+                "rl_batch_size":batch_size,
+                "top_k":top_k,
+                "top_p":top_p,
+                "temperature": temperature
             })
 
         args = TrainingArguments(
@@ -59,7 +78,7 @@ def training_loop(epochs:int,
             # other args and kwargs here
             run_name=run_name,
             report_to="wandb",  # enable logging to W&B
-            logging_steps=64  # how often to log to W&B
+            logging_steps=256  # how often to log to W&B
         )
 
         train_dataset,_=download_datasets(task_list, number_type_list,prefix)
@@ -68,7 +87,7 @@ def training_loop(epochs:int,
             model,
             train_dataset=train_dataset,
             dataset_text_field="text",
-            max_seq_length=64,
+            max_seq_length=16,
             args=args
         )
         if ft_epochs>0:
@@ -91,22 +110,16 @@ def training_loop(epochs:int,
             mean_scores=[]
             for batch in batched_dataset:
                 batch={key: [i[key] for i in batch] for key in batch[0]}
-                query_tensor = torch.cat([tokenizer.encode(q, return_tensors="pt",padding="max_length", max_length=64) for q in batch[INPUT]])
-                try:
-                    response_tensor  = respond_to_batch(model_2, query_tensor,txt_len=64)
-                except IndexError as index_error:
-                    print("index error! batch input:\n")
-                    for i,o in zip(batch[INPUT], batch[OUTPUT]):
-                        print(i,o)
-                    print('query tensor size', query_tensor.size())
-                    exit()
-                reward = [torch.tensor(reward_function(tokenizer.decode(response),answer)) for response, answer in zip(response_tensor, batch[OUTPUT])]
+                query_tensor = [tokenizer.encode(q, return_tensors="pt")[0] for q in batch[INPUT]]
+                response_tensor  = ppo_trainer.generate(query_tensor,**generation_kwargs )
+                reward = [torch.tensor(reward_function(tokenizer.decode(response)[len(query):],answer)) for response, answer,query in zip(response_tensor, batch[OUTPUT], batch[INPUT])]
                 train_stats = ppo_trainer.step([t for t in query_tensor], [t for t in response_tensor], reward)
                 mean_scores.append(train_stats['ppo/mean_scores'])
             wandb.log({"ppo/mean_scores":np.mean(mean_scores)})
+            print(f"ended epoch {e} with mean score {np.mean(mean_scores)}")
 
         wandb.finish()
-        print("rl training complete time elapsed: ", time.time()-start)
+        print("rl training complete! time elapsed: ", time.time()-start)
         model_2.push_to_hub(f"jlbaker361/{run_name}")
 
         
@@ -127,4 +140,5 @@ if __name__=='__main__':
         args.number_type_list,
         args.prefix
     )
+    print(args)
     print("done :)")
