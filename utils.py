@@ -10,7 +10,7 @@ def reward_function(decoded_response:str, answer:float, mae:bool=True)->float:
     decoded_response=re.sub(",","", decoded_response) #get rid of commas so 9,000 -> 9000
     nums=re.findall(r'\d+\.\d+|\d+', decoded_response)
     if len(nums)==0:
-        return -1000.0
+        return -100000.0
     guess=float(nums[0])
     if mae:
         return -1.0 * abs(guess-answer)
