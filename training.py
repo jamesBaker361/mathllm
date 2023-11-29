@@ -5,7 +5,7 @@ from string_globals import *
 from datasets import Dataset
 import torch
 from trl import PPOTrainer, PPOConfig, AutoModelForCausalLMWithValueHead, create_reference_model
-from trl.core import respond_to_batch
+import re
 import numpy as np
 import wandb
 import os
@@ -114,11 +114,22 @@ def training_loop(epochs:int,
             for batch in batched_dataset:
                 batch={key: [i[key] for i in batch] for key in batch[0]}
                 query_tensor = [tokenizer.encode(q, return_tensors="pt")[0] for q in batch[INPUT]]
-                response_tensor  = ppo_trainer.generate(query_tensor,**generation_kwargs )
-                reward = [torch.tensor(reward_function(tokenizer.decode(response)[len(query):],answer)) for response, answer,query in zip(response_tensor, batch[OUTPUT], batch[INPUT])]
+                try:
+                    response_tensor  = ppo_trainer.generate(query_tensor,**generation_kwargs )
+                except RuntimeError as exc:
+                    print(batch[INPUT])
+                    print("runtime error at epoch ",e)
+                    raise exc
+                #print([(input, tokenizer.decode(response)) for input,response in zip(batch[INPUT],response_tensor)])
+                decoded_response_list=[]
+                for response,query in zip(response_tensor, batch[INPUT]):
+                    decoded_response=tokenizer.decode(response)
+                    decoded_response=re.sub(query, "", decoded_response)
+                    decoded_response_list.append(decoded_response)
+                reward = [torch.tensor(reward_function(decoded_response,answer)) for decoded_response, answer in zip(decoded_response_list, batch[OUTPUT])]
                 train_stats = ppo_trainer.step([t for t in query_tensor], [t for t in response_tensor], reward)
                 mean_scores.append(train_stats['ppo/mean_scores'])
-            wandb.log({"ppo/mean_scores":np.mean(mean_scores)})
+            wandb.log({"ppo/mean_scores":np.mean(mean_scores), "epoch":e})
             print(f"ended epoch {e} with mean score {np.mean(mean_scores)}")
 
         wandb.finish()
