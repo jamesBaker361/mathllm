@@ -111,14 +111,14 @@ def training_loop(epochs:int,
         start=time.time()
         for e in range(ft_epochs,ft_epochs+ rl_epochs):
             mean_scores=[]
-            for batch in batched_dataset:
+            for i,batch in enumerate(batched_dataset):
                 batch={key: [i[key] for i in batch] for key in batch[0]}
                 query_tensor = [tokenizer.encode(q, return_tensors="pt")[0] for q in batch[INPUT]]
                 try:
                     response_tensor  = ppo_trainer.generate(query_tensor,**generation_kwargs )
                 except RuntimeError as exc:
                     print(batch[INPUT])
-                    print("runtime error at epoch ",e)
+                    print(f"runtime error at epoch {e} batch {i}")
                     raise exc
                 #print([(input, tokenizer.decode(response)) for input,response in zip(batch[INPUT],response_tensor)])
                 decoded_response_list=[]
