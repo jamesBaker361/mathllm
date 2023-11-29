@@ -41,12 +41,13 @@ ppo_config = PPOConfig(
     batch_size=batch_size,
 )
 
+peft_config = LoraConfig(task_type=TaskType.CAUSAL_LM, inference_mode=False, r=8, lora_alpha=32, lora_dropout=0.1)
+
 def training_loop(epochs:int,
                   training_type_list:list[str],
                   task_list:list[str],
                   number_type_list:list[str],
                   prefix:str):
-    peft_config = LoraConfig(task_type=TaskType.CAUSAL_LM, inference_mode=False, r=8, lora_alpha=32, lora_dropout=0.1)
     for training_type in training_type_list:
         run_name=get_run_name(training_type, task_list, number_type_list,prefix)
         print(run_name)
