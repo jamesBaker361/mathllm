@@ -37,6 +37,10 @@ generation_kwargs = { #here? https://github.com/huggingface/transformers/blob/ma
     "temperature":temperature
 }
 
+ppo_config = PPOConfig(
+    batch_size=batch_size,
+)
+
 def training_loop(epochs:int,
                   training_type_list:list[str],
                   task_list:list[str],
@@ -98,9 +102,6 @@ def training_loop(epochs:int,
             trainer.train()
             print("fine tune training complete! time elapsed: ",time.time()-start)
         
-        ppo_config = PPOConfig(
-            batch_size=batch_size,
-        )
         model_2=AutoModelForCausalLMWithValueHead.from_pretrained(get_peft_model(trainer.model, peft_config))
         model_ref = create_reference_model(model_2)
         ppo_trainer = PPOTrainer(ppo_config, model_2, model_ref, tokenizer)
