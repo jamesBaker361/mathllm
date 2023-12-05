@@ -32,7 +32,7 @@ generation_kwargs = { #here? https://github.com/huggingface/transformers/blob/ma
     "top_p": top_p,
     "do_sample": True,
     "pad_token_id": tokenizer.eos_token_id,
-    "max_new_tokens": 16,
+    "max_length": 30,
     "eos_token_id": -1,
     "temperature":temperature
 }
