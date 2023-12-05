@@ -120,6 +120,7 @@ def training_loop(epochs:int,
                     response_tensor  = ppo_trainer.generate(query_tensor,**generation_kwargs )
                 except RuntimeError as exc:
                     print(batch[INPUT])
+                    print(query_tensor)
                     print(f"runtime error at epoch {e} batch {i}")
                     raise exc
                 #print([(input, tokenizer.decode(response)) for input,response in zip(batch[INPUT],response_tensor)])
@@ -128,7 +129,18 @@ def training_loop(epochs:int,
                     decoded_response=tokenizer.decode(response)
                     decoded_response=re.sub(query, "", decoded_response)
                     decoded_response_list.append(decoded_response)
-                reward = [torch.tensor(reward_function(decoded_response,answer)) for decoded_response, answer in zip(decoded_response_list, batch[OUTPUT])]
+                
+                reward=[torch.tensor(reward_function(decoded_response,answer)) for decoded_response, answer in zip(decoded_response_list, batch[OUTPUT])]
+                print("good reward", reward)
+                reward = []
+                for query,decoded_response, answer in zip(batch[INPUT],decoded_response_list, batch[OUTPUT]):
+                    try:
+                        r=reward_function(decoded_response,answer)
+                    except RuntimeError:
+                        print(query,decoded_response, answer)
+                        r=-10.0
+                    reward.append(torch.tensor(r))
+                print("bad reward", reward)
                 train_stats = ppo_trainer.step([t for t in query_tensor], [t for t in response_tensor], reward)
                 mean_scores.append(train_stats['ppo/mean_scores'])
             wandb.log({"ppo/mean_scores":np.mean(mean_scores), "epoch":e})
