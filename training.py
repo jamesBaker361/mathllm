@@ -47,7 +47,9 @@ def training_loop(epochs:int,
                   training_type_list:list[str],
                   task_list:list[str],
                   number_type_list:list[str],
-                  prefix:str):
+                  prefix:str,
+                  threshold:float, 
+                  penalty:float):
     for training_type in training_type_list:
         run_name=get_run_name(training_type, task_list, number_type_list,prefix)
         print(run_name)
@@ -77,7 +79,9 @@ def training_loop(epochs:int,
                 "rl_batch_size":batch_size,
                 "top_k":top_k,
                 "top_p":top_p,
-                "temperature": temperature
+                "temperature": temperature,
+                "threshold": threshold,
+                "penalty": penalty
             })
 
         args = TrainingArguments(
@@ -130,7 +134,7 @@ def training_loop(epochs:int,
                     decoded_response=re.sub(query, "", decoded_response)
                     decoded_response_list.append(decoded_response)
                 
-                reward=[torch.tensor(reward_function(decoded_response,answer)) for decoded_response, answer in zip(decoded_response_list, batch[OUTPUT])]
+                reward=[torch.tensor(reward_function(decoded_response,answer,threshold, penalty)) for decoded_response, answer in zip(decoded_response_list, batch[OUTPUT])]
                 #print("reward", reward)
                 train_stats = ppo_trainer.step([t for t in query_tensor], [t for t in response_tensor], reward)
                 mean_scores.append(train_stats['ppo/mean_scores'])
@@ -149,6 +153,8 @@ parser.add_argument("--task_list", nargs = '*', help="task types", default=TASK_
 parser.add_argument("--number_type_list", nargs = '*', help="number types", default=NUMBER_TYPE_LIST)
 parser.add_argument("--epochs", type=int, help="total epochs to train for")
 parser.add_argument("--prefix", type=str,default="")
+parser.add_argument("--threshold",type=float, default=0.001, help="threshold for equality")
+parser.add_argument("--penalty", type=float, default=-10.0, help="maximum penalty")
 
 args = parser.parse_args()
 if __name__=='__main__':
@@ -157,7 +163,9 @@ if __name__=='__main__':
         args.training_type_list,
         args.task_list,
         args.number_type_list,
-        args.prefix
+        args.prefix,
+        args.threshold,
+        args.penalty
     )
     print(args)
     print("done :)")
