@@ -131,7 +131,7 @@ def training_loop(epochs:int,
                     decoded_response_list.append(decoded_response)
                 
                 reward=[torch.tensor(reward_function(decoded_response,answer)) for decoded_response, answer in zip(decoded_response_list, batch[OUTPUT])]
-                print("reward", reward)
+                #print("reward", reward)
                 train_stats = ppo_trainer.step([t for t in query_tensor], [t for t in response_tensor], reward)
                 mean_scores.append(train_stats['ppo/mean_scores'])
             wandb.log({"ppo/mean_scores":np.mean(mean_scores), "epoch":e})
