@@ -37,10 +37,6 @@ generation_kwargs = { #here? https://github.com/huggingface/transformers/blob/ma
     "temperature":temperature
 }
 
-ppo_config = PPOConfig(
-    batch_size=batch_size,
-)
-
 peft_config = LoraConfig(task_type=TaskType.CAUSAL_LM, inference_mode=False, r=8, lora_alpha=32, lora_dropout=0.1)
 
 def training_loop(epochs:int,
@@ -49,7 +45,15 @@ def training_loop(epochs:int,
                   number_type_list:list[str],
                   prefix:str,
                   threshold:float, 
-                  penalty:float):
+                  penalty:float,
+                  kl_penalty:str,
+                  init_kl_coef:float):
+    ppo_config = PPOConfig(
+        batch_size=batch_size,
+        init_kl_coef=init_kl_coef,
+        kl_penalty=kl_penalty,
+        ratio_threshold=1000000.0
+    )
     for training_type in training_type_list:
         run_name=get_run_name(training_type, task_list, number_type_list,prefix)
         print(run_name)
@@ -81,7 +85,8 @@ def training_loop(epochs:int,
                 "top_p":top_p,
                 "temperature": temperature,
                 "threshold": threshold,
-                "penalty": penalty
+                "penalty": penalty,
+                "kl_penalty":kl_penalty
             })
 
         args = TrainingArguments(
@@ -154,10 +159,13 @@ parser.add_argument("--number_type_list", nargs = '*', help="number types", defa
 parser.add_argument("--epochs", type=int, help="total epochs to train for")
 parser.add_argument("--prefix", type=str,default="")
 parser.add_argument("--threshold",type=float, default=0.001, help="threshold for equality")
-parser.add_argument("--penalty", type=float, default=-10.0, help="maximum penalty")
+parser.add_argument("--penalty", type=float, default=-10.0, help="minimum penalty")
+parser.add_argument("--kl_penalty", type=str,default="full", help="kl penalty options: 'kl': model_logp - ref_logp,  'abs': abs(kl),  'mse': mean squared error mse(kl) and 'full': the actual kl for all tokens in the distribution")
+parser.add_argument('--init_kl_coef', type=float, default=0.0,help="beta on kl cost for loss")
 
 args = parser.parse_args()
 if __name__=='__main__':
+    print(args)
     training_loop(
         args.epochs,
         args.training_type_list,
@@ -165,7 +173,8 @@ if __name__=='__main__':
         args.number_type_list,
         args.prefix,
         args.threshold,
-        args.penalty
+        args.penalty,
+        args.kl_penalty,
+        args.init_kl_coef
     )
-    print(args)
     print("done :)")
