@@ -148,7 +148,9 @@ def training_loop(epochs:int,
             print(f"ended epoch {e} with mean score {np.mean(mean_scores)}")
 
         wandb.finish()
-        print("rl training complete! time elapsed: ", time.time()-start)
+        seconds=time.time()-start
+        hours=seconds/3600
+        print(f"rl training complete! time elapsed: {seconds} seconds = {hours} hours")
         model_2.push_to_hub(f"jlbaker361/{run_name}")
 
         
