@@ -62,5 +62,5 @@ if __name__=='__main__':
     task_list=[ADDITION]
     training_type_list=[RL]
     number_type_list=[WHOLE]
-    prefix="small"
+    prefix=""
     evaluate_trained_model(training_type_list, task_list, number_type_list, prefix, model)
