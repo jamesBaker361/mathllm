@@ -2,6 +2,7 @@ from utils import get_run_name, download_datasets, reward_function
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from trl import PPOTrainer, PPOConfig, AutoModelForCausalLMWithValueHead, create_reference_model
 from string_globals import *
+from constant_globals import *
 from trl.core import respond_to_batch
 from training import generation_kwargs, tokenizer
 import numpy as np
@@ -39,7 +40,7 @@ def evaluate_trained_model(
             decoded_response=tokenizer.decode(response_tensor[0])
             decoded_response=re.sub(input, "", decoded_response)
             #print('$',input,tokenizer.decode(response_tensor[0]), '$')
-            reward=reward_function(decoded_response, output)
+            reward=reward_function(decoded_response, output, THRESHOLD, TEST_PENALTY)
             reward_list.append(reward)
             if abs(reward) <=0.0001:
                 correct_count+=1.0

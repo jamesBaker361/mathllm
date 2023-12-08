@@ -2,6 +2,7 @@ from peft import LoraConfig, TaskType, get_peft_model
 from transformers import AutoTokenizer, AutoModelForCausalLM,TrainingArguments
 from trl import SFTTrainer
 from string_globals import *
+from constant_globals import *
 from datasets import Dataset
 import torch
 from trl import PPOTrainer, PPOConfig, AutoModelForCausalLMWithValueHead, create_reference_model
@@ -158,8 +159,8 @@ parser.add_argument("--task_list", nargs = '*', help="task types", default=TASK_
 parser.add_argument("--number_type_list", nargs = '*', help="number types", default=NUMBER_TYPE_LIST)
 parser.add_argument("--epochs", type=int, help="total epochs to train for")
 parser.add_argument("--prefix", type=str,default="")
-parser.add_argument("--threshold",type=float, default=0.001, help="threshold for equality")
-parser.add_argument("--penalty", type=float, default=-10.0, help="minimum penalty")
+parser.add_argument("--threshold",type=float, default=THRESHOLD, help="threshold for equality")
+parser.add_argument("--penalty", type=float, default=PENALTY, help="minimum penalty")
 parser.add_argument("--kl_penalty", type=str,default="full", help="kl penalty options: 'kl': model_logp - ref_logp,  'abs': abs(kl),  'mse': mean squared error mse(kl) and 'full': the actual kl for all tokens in the distribution")
 parser.add_argument('--init_kl_coef', type=float, default=0.0,help="beta on kl cost for loss")
 
