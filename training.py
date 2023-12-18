@@ -1,3 +1,8 @@
+import os
+cache_dir="/scratch/jlb638/trans_cache"
+os.environ["TRANSFORMERS_CACHE"]=cache_dir
+os.environ["HF_HOME"]=cache_dir
+os.environ["HF_HUB_CACHE"]=cache_dir
 from peft import LoraConfig, TaskType, get_peft_model
 from transformers import AutoTokenizer, AutoModelForCausalLM,TrainingArguments
 from trl import SFTTrainer
@@ -9,7 +14,6 @@ from trl import PPOTrainer, PPOConfig, AutoModelForCausalLMWithValueHead, create
 import re
 import numpy as np
 import wandb
-import os
 from utils import download_datasets, reward_function, get_run_name, expand_embedding_vocab_size
 import time
 #pdb.set_trace()
@@ -19,8 +23,9 @@ os.environ["WANDB_NOTEBOOK_NAME"]="math-notebook"
 os.environ["WANDB_PROJECT"]="math-llm"
 np.random.seed(1234)
 
+cache_dir="/scratch/jlb638/trans_cache"
 
-tokenizer = AutoTokenizer.from_pretrained('gpt2')
+tokenizer = AutoTokenizer.from_pretrained('gpt2',cache_dir=cache_dir)
 tokenizer.pad_token=tokenizer.eos_token
 batch_size=8
 top_k=4
@@ -58,7 +63,7 @@ def training_loop(epochs:int,
     for training_type in training_type_list:
         run_name=get_run_name(training_type, task_list, number_type_list,prefix)
         print(run_name)
-        model=AutoModelForCausalLM.from_pretrained('gpt2')
+        model=AutoModelForCausalLM.from_pretrained('gpt2',cache_dir=cache_dir)
         #model=expand_embedding_vocab_size(1,model)
         model = get_peft_model(model, peft_config)
 
@@ -91,7 +96,7 @@ def training_loop(epochs:int,
             })
 
         args = TrainingArguments(
-            output_dir="./output",
+            output_dir="/scratch/jlb638/sft-output",
             num_train_epochs=ft_epochs,
             # other args and kwargs here
             run_name=run_name,
